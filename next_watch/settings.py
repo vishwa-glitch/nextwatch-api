@@ -36,7 +36,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # Add CORS middleware for Render
+    'corsheaders.middleware.CorsMiddleware',  # Django CORS middleware
+    'next_watch.cors_middleware.CustomCorsMiddleware',  # Custom CORS middleware for additional handling
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',  # Add whitenoise for static files
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -45,7 +46,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'next_watch.middleware.CloudFrontMiddleware',  # Kept for compatibility
+    'next_watch.middleware.CloudFrontMiddleware',  # Updated for CORS handling
 ]
 
 ROOT_URLCONF = 'next_watch.urls'
@@ -154,6 +155,29 @@ CORS_ALLOW_ALL_ORIGINS = os.environ.get('CORS_ALLOW_ALL_ORIGINS', 'False').lower
 CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', '').split(',')
 CORS_ALLOW_CREDENTIALS = os.environ.get('CORS_ALLOW_CREDENTIALS', 'False').lower() == 'true'
 
+# Additional CORS settings for handling credentials
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+# Ensure empty strings are filtered out from CORS_ALLOWED_ORIGINS
+CORS_ALLOWED_ORIGINS = [origin for origin in CORS_ALLOWED_ORIGINS if origin]
+
 # CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:3000,http://localhost:5173,https://localhost:3000,https://localhost:5173').split(',')
 
@@ -205,6 +229,14 @@ CACHE_TTL = {
 SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'True').lower() == 'true'
 SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'True').lower() == 'true'
 CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', 'True').lower() == 'true'
+
+# Cookie settings for cross-origin requests
+SESSION_COOKIE_SAMESITE = 'None'  # Required for cross-origin cookies
+CSRF_COOKIE_SAMESITE = 'None'     # Required for cross-origin CSRF
+# Only set SameSite=None when CORS_ALLOW_CREDENTIALS is True
+if CORS_ALLOW_CREDENTIALS:
+    SESSION_COOKIE_SAMESITE = 'None'
+    CSRF_COOKIE_SAMESITE = 'None'
 
 # Security Headers
 SECURE_BROWSER_XSS_FILTER = True
