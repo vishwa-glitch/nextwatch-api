@@ -17,9 +17,11 @@ services:
       - key: CORS_ALLOW_ALL_ORIGINS
         value: "false"
       - key: CORS_ALLOWED_ORIGINS
-        value: "https://your-frontend-domain.com"
+        value: "https://staging.d2yfvrdludn658.amplifyapp.com"
+      - key: CORS_ALLOW_CREDENTIALS
+        value: "true"
       - key: CSRF_TRUSTED_ORIGINS
-        value: "https://your-frontend-domain.com"
+        value: "https://staging.d2yfvrdludn658.amplifyapp.com"
       - key: SECURE_SSL_REDIRECT
         value: "true"
       - key: SESSION_COOKIE_SECURE
