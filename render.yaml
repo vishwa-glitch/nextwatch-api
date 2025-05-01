@@ -2,61 +2,45 @@ services:
   # A Django web service
   - type: web
     name: nextwatch
-    env: python
-    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
-    startCommand: gunicorn next_watch.wsgi:application
+    runtime: python
+    buildCommand: pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --noinput
+    startCommand: gunicorn next_watch.wsgi:application --workers=1 --threads=2 --timeout=120 --max-requests=1000 --log-file=- --log-level=info
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.0
+        value: "3.11.0"
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
-        value: false
+        value: "false"
       - key: ALLOWED_HOSTS
         value: ".onrender.com,localhost,127.0.0.1"
       - key: CORS_ALLOW_ALL_ORIGINS
-        value: false
+        value: "false"
       - key: CORS_ALLOWED_ORIGINS
         value: "https://your-frontend-domain.com"
       - key: CSRF_TRUSTED_ORIGINS
         value: "https://your-frontend-domain.com"
       - key: SECURE_SSL_REDIRECT
-        value: true
+        value: "true"
       - key: SESSION_COOKIE_SECURE
-        value: true
+        value: "true"
       - key: CSRF_COOKIE_SECURE
-        value: true
+        value: "true"
       # Add your TMDB API key in the Render dashboard
       - key: TMDB_API_KEY
         sync: false
       - key: TMDB_READ_ACCESS_TOKEN
         sync: false
-      # Database configuration - use Render PostgreSQL
+      # Database configuration - use AWS RDS PostgreSQL
       - key: DB_ENGINE
         value: django.db.backends.postgresql
       - key: DB_NAME
-        fromDatabase:
-          name: nextwatch-db
-          property: database
+        sync: false
       - key: DB_USER
-        fromDatabase:
-          name: nextwatch-db
-          property: user
+        sync: false
       - key: DB_PASSWORD
-        fromDatabase:
-          name: nextwatch-db
-          property: password
+        sync: false
       - key: DB_HOST
-        fromDatabase:
-          name: nextwatch-db
-          property: host
+        sync: false
       - key: DB_PORT
-        fromDatabase:
-          name: nextwatch-db
-          property: port
-
-databases:
-  - name: nextwatch-db
-    databaseName: nextwatch
-    user: nextwatch
-    plan: free
+        sync: false
