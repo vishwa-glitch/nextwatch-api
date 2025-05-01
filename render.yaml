@@ -1,0 +1,62 @@
+services:
+  # A Django web service
+  - type: web
+    name: nextwatch
+    env: python
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    startCommand: gunicorn next_watch.wsgi:application
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: false
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com,localhost,127.0.0.1"
+      - key: CORS_ALLOW_ALL_ORIGINS
+        value: false
+      - key: CORS_ALLOWED_ORIGINS
+        value: "https://your-frontend-domain.com"
+      - key: CSRF_TRUSTED_ORIGINS
+        value: "https://your-frontend-domain.com"
+      - key: SECURE_SSL_REDIRECT
+        value: true
+      - key: SESSION_COOKIE_SECURE
+        value: true
+      - key: CSRF_COOKIE_SECURE
+        value: true
+      # Add your TMDB API key in the Render dashboard
+      - key: TMDB_API_KEY
+        sync: false
+      - key: TMDB_READ_ACCESS_TOKEN
+        sync: false
+      # Database configuration - use Render PostgreSQL
+      - key: DB_ENGINE
+        value: django.db.backends.postgresql
+      - key: DB_NAME
+        fromDatabase:
+          name: nextwatch-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: nextwatch-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: nextwatch-db
+          property: password
+      - key: DB_HOST
+        fromDatabase:
+          name: nextwatch-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: nextwatch-db
+          property: port
+
+databases:
+  - name: nextwatch-db
+    databaseName: nextwatch
+    user: nextwatch
+    plan: free
